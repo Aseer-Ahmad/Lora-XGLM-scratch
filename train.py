@@ -72,8 +72,6 @@ def train_XGLM_lora():
     train_XGLM(lora_model, lm_dataset, "xglm_lora")
     
 
-
-
 def train_XGLM(model, lm_dataset, output_dir):
     
     training_args = TrainingArguments(
