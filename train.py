@@ -2,6 +2,7 @@ import torch
 import datasets
 
 from transformers import AutoModelForCausalLM, TrainingArguments, Trainer
+from dataloader import get_dataset
 from functools import partial
 import time
 
@@ -67,7 +68,8 @@ def get_lora_model(model):
 def train_XGLM_lora():
     model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
     lora_model = get_lora_model(model)
-    
+    lm_dataset = get_dataset()
+    train_XGLM(lora_model, lm_dataset, "xglm_lora")
     
 
 
@@ -90,7 +92,11 @@ def train_XGLM(model, lm_dataset, output_dir):
         # data_collator=data_collator,
     )
 
+    st = time.time()
     trainer.train()
+    et = time.time()
+
+    print(f"total training time : {(et - st)} sec.")
 
 
 if __name__ == '__main__':
