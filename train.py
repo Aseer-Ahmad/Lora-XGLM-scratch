@@ -98,5 +98,4 @@ def train_XGLM(model, lm_dataset, output_dir):
 
 
 if __name__ == '__main__':
-    # train_XGLM_lora()
     train_XGLM_lora()

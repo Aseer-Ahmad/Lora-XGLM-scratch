@@ -29,7 +29,9 @@ def getDataset():
                         batched=True,
                         num_proc=4,
                         fn_kwargs = {'block_size' : SEQ_LEN } )
-    print(lm_dataset)
+    
+    print(lm_dataset['train'])
+    print(lm_dataset['train'][0])
 
     return lm_dataset
 
