@@ -41,11 +41,14 @@ def get_lora_model(model):
     lora_query = True
     lora_key = True
     lora_value = True
-    lora_projection = False
-    lora_mlp = False
+    lora_projection = True
+    lora_mlp = True
     lora_head = False
   
     assign_lora = partial(LinearWithLoRA, rank=lora_r, alpha=lora_alpha)
+
+    for param in model.parameters():
+        param.requires_grad = False
 
     for layer in model.model.layers:
         if lora_query:
@@ -67,7 +70,15 @@ def get_lora_model(model):
 
 def train_XGLM_lora():
     model = AutoModelForCausalLM.from_pretrained(MODEL_NAME)
+    print(model)
+    model_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print(f"Total trainable parameters in model : {model_params}")
+
     lora_model = get_lora_model(model)
+    print(lora_model)
+    lora_model_params = sum(p.numel() for p in lora_model.parameters() if p.requires_grad)
+    print(f"Total trainable parameters in lora model : {lora_model_params} and are {(lora_model_params/model_params)*100} % of the original model")
+    
     lm_dataset = getDataset()
     train_XGLM(lora_model, lm_dataset, "xglm_lora")
     
@@ -75,18 +86,18 @@ def train_XGLM_lora():
 def train_XGLM(model, lm_dataset, output_dir):
     
     training_args = TrainingArguments(
-    output_dir=output_dir,
-    evaluation_strategy="epoch",
-    learning_rate=2e-5,
-    weight_decay=0.01,
-    push_to_hub=True,
+        output_dir=output_dir,
+        evaluation_strategy="epoch",
+        learning_rate=2e-5,
+        weight_decay=0.01,
+        #push_to_hub=True,
     )
 
     trainer = Trainer(
         model=model,
         args=training_args,
         train_dataset=lm_dataset["train"],
-        eval_dataset=lm_dataset["test"],
+        eval_dataset=lm_dataset["validation"],
         # data_collator=data_collator,
     )
 
